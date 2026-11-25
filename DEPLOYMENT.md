@@ -1,33 +1,31 @@
 # Deployment Information — Day 14 (Agent Part 6)
 
-> **Lưu ý:** Cập nhật `<YOUR-PUBLIC-URL>` bên dưới sau khi deploy thư mục `06-lab-complete/` lên Railway hoặc Render, và bổ sung 3 ảnh chụp (`screenshots/dashboard.png`, `screenshots/running.png`, `screenshots/test.png`).
-
 ## Public URL
-https://<YOUR-PUBLIC-URL>
+https://k5-l3-day14-khuattienminh-2a202603616.onrender.com
 
 ## Platform
-Railway / Render *(chọn nền tảng bạn đã deploy)*
+Render (Web Service chạy Docker từ `06-lab-complete/Dockerfile` + Managed Redis)
 
-## Environment Variables Set (trên nền tảng, không ghi vào code)
-- `PORT` (tự động inject bởi nền tảng)
+## Environment Variables Set (cấu hình trên Render Dashboard, không ghi trong code)
+- `PORT` (tự động inject bởi Render)
 - `ENVIRONMENT=production`
-- `REDIS_URL` (trỏ tới managed Redis service trên nền tảng)
-- `AGENT_API_KEY` (đặt trên Dashboard / CLI, không commit vào git)
+- `REDIS_URL` (kết nối tới Redis instance trên Render)
+- `AGENT_API_KEY` (đặt trên Render Dashboard, không commit vào git)
 - `RATE_LIMIT_PER_MINUTE=10`
 - `DAILY_BUDGET_USD=1.0`
 
 ## Test Commands (CP6 Self-Test)
 
-Đặt biến môi trường trước khi chạy (không để lộ `AGENT_API_KEY` khi chụp ảnh):
+Đặt biến môi trường trước khi chạy (chỉ in mã HTTP, không lộ `AGENT_API_KEY`):
 
 ```bash
-export BASE="https://<YOUR-PUBLIC-URL>"
-export AGENT_API_KEY="<YOUR-API-KEY>"
+export BASE="https://k5-l3-day14-khuattienminh-2a202603616.onrender.com"
+export AGENT_API_KEY="<YOUR-RENDER-AGENT-API-KEY>"
 
 # 1. Health check -> 200
 curl -sS -o /dev/null -w '%{http_code}\n' "$BASE/health"
 
-# 2. Readiness check (kiểm tra kết nối Redis trên cloud) -> 200
+# 2. Readiness check (kiểm tra kết nối Redis trên Render) -> 200
 curl -sS -o /dev/null -w '%{http_code}\n' "$BASE/ready"
 
 # 3. POST /ask không có API key -> 401
@@ -40,12 +38,12 @@ curl -sS -o /dev/null -w '%{http_code}\n' -X POST "$BASE/ask" \
   -d '{"question":"Hello"}'
 ```
 
-Kiểm tra tự động kèm URL public bằng script chấm:
-
-```bash
-cd 06-lab-complete
-python check_production_ready.py --public-url "$BASE"
-```
+### Kết quả kiểm thử thực tế
+- `GET /health` → `HTTP 200` (`{"status":"ok","environment":"production"}`)
+- `GET /ready` → `HTTP 200` (`{"status":"ready"}`)
+- `POST /ask` (không có `X-API-Key`) → `HTTP 401` (`{"detail":"Invalid or missing API key"}`)
+- `POST /ask` (có `X-API-Key` hợp lệ) → `HTTP 200` (xem ảnh `screenshots/test.png`)
+- `python check_production_ready.py --public-url "https://k5-l3-day14-khuattienminh-2a202603616.onrender.com"` → **PASS 12/12 (44/44 checks passed)**
 
 ## Screenshots
 - [Deployment dashboard](screenshots/dashboard.png)

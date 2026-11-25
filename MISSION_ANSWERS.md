@@ -150,10 +150,18 @@ Content-Type: application/json
 
 ## Part 3: Cloud Deployment
 
-### Exercise 3.1 / 3.2: Deploy Agent Part 6 (`06-lab-complete/`)
+### Exercise 3.1 / 3.2: Deploy Agent Part 6 (`06-lab-complete/`) lên Render
 
-- **Public URL:** *(Đang chờ hoàn tất thao tác deploy trên Railway/Render — xem hướng dẫn ở CP6 và `DEPLOYMENT.md`)*
-- **Screenshots:** `screenshots/dashboard.png`, `screenshots/running.png`, `screenshots/test.png` *(sẽ cập nhật sau khi deploy xong)*
+- **Platform:** Render (Web Service Docker + Redis)
+- **Public URL:** https://k5-l3-day14-khuattienminh-2a202603616.onrender.com
+- **Kết quả kiểm thử trực tiếp:**
+  - `GET /health` → `200` (`{"status":"ok","environment":"production"}`)
+  - `GET /ready` → `200` (`{"status":"ready"}`)
+  - `POST /ask` (thiếu `X-API-Key`) → `401` (`{"detail":"Invalid or missing API key"}`)
+  - `POST /ask` (có `X-API-Key` đặt trên Render Dashboard) → `200`
+  - `python check_production_ready.py --public-url "https://k5-l3-day14-khuattienminh-2a202603616.onrender.com"` → **`PASS 12/12` (44/44 checks passed)**
+- **Screenshots:** [screenshots/dashboard.png](screenshots/dashboard.png), [screenshots/running.png](screenshots/running.png), [screenshots/test.png](screenshots/test.png)
+- **Chi tiết cấu hình & lệnh test:** xem [DEPLOYMENT.md](DEPLOYMENT.md)
 
 ### So sánh `railway.toml` vs `render.yaml`
 
